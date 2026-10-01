@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AuthModal } from './components/AuthModal';
+import { useAuth } from './context/AuthContext';
 import { starterWorkspace } from './data/starterData';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import { useServiceWorker } from './hooks/useServiceWorker';
 import { computeTaskStats, formatMinutes, getTodayLabel, syncStatusTone } from './lib/sync';
 import { type NavKey, type Task, type Workspace } from './types';
-import { useLocalStorage } from './hooks/useLocalStorage';
 
 const navItems: Array<{ key: NavKey; label: string }> = [
   { key: 'today', label: 'Today' },
@@ -17,12 +20,22 @@ const navItems: Array<{ key: NavKey; label: string }> = [
 const emptyTaskDraft = { title: '', course: '', due: 'Today', priority: 'medium' as const };
 
 function App() {
+  const { user, migrateGuestToAccount } = useAuth();
   const [workspace, setWorkspace] = useLocalStorage<Workspace>('student-os-workspace', starterWorkspace);
   const [currentView, setCurrentView] = useState<NavKey>('today');
   const [taskDraft, setTaskDraft] = useState(emptyTaskDraft);
   const [focusMinutes, setFocusMinutes] = useState(45);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [authModalOpen, setAuthModalOpen] = useState(true);
+
+  useServiceWorker();
+
+  useEffect(() => {
+    if (user) {
+      setAuthModalOpen(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
@@ -49,9 +62,7 @@ function App() {
 
   const taskStats = useMemo(() => computeTaskStats(workspace.tasks), [workspace.tasks]);
   const todayLabel = useMemo(() => getTodayLabel(), []);
-
   const todaysTasks = workspace.tasks.filter((task) => !task.completed).slice(0, 4);
-  const upcoming = workspace.schedule.slice(0, 4);
 
   const handleAddTask = () => {
     if (!taskDraft.title.trim()) return;
@@ -88,6 +99,22 @@ function App() {
     setWorkspace((prev) => ({
       ...prev,
       profile: { ...prev.profile, theme },
+    }));
+  };
+
+  const handleGuestContinue = () => {
+    setWorkspace((prev) => ({
+      ...prev,
+      profile: { ...prev.profile, accountMode: 'guest', syncStatus: 'local' },
+    }));
+  };
+
+  const handleAccountMigration = async () => {
+    if (!user?.uid) return;
+    await migrateGuestToAccount(workspace);
+    setWorkspace((prev) => ({
+      ...prev,
+      profile: { ...prev.profile, accountMode: 'account', syncStatus: 'synced' },
     }));
   };
 
@@ -337,51 +364,60 @@ function App() {
   };
 
   return (
-    <div className="app-shell">
-      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
-        <div className="brand-block">
-          <div className="brand-mark">S</div>
-          <div>
-            <strong>Student OS</strong>
-            <small>Local-first workspace</small>
+    <>
+      <div className="app-shell">
+        <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+          <div className="brand-block">
+            <div className="brand-mark">S</div>
+            <div>
+              <strong>Student OS</strong>
+              <small>Local-first workspace</small>
+            </div>
           </div>
-        </div>
 
-        <nav className="nav">
-          {navItems.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={currentView === item.key ? 'nav-item active' : 'nav-item'}
-              onClick={() => {
-                setCurrentView(item.key);
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              {item.label}
+          <nav className="nav">
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={currentView === item.key ? 'nav-item active' : 'nav-item'}
+                onClick={() => {
+                  setCurrentView(item.key);
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="sidebar-card">
+            <span>Workspace</span>
+            <strong>{workspace.profile.accountMode === 'guest' ? 'Guest' : 'Synced account'}</strong>
+          </div>
+        </aside>
+
+        <main className="main-panel">
+          <header className="topbar">
+            <button className="menu-button" type="button" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
+              ☰
             </button>
-          ))}
-        </nav>
+            <div className="topbar-status">
+              <span className={`status ${workspace.profile.syncStatus}`}>{syncStatusTone[workspace.profile.syncStatus]}</span>
+            </div>
+          </header>
 
-        <div className="sidebar-card">
-          <span>Workspace</span>
-          <strong>{workspace.profile.accountMode === 'guest' ? 'Guest' : 'Synced account'}</strong>
-        </div>
-      </aside>
+          {renderContent()}
+        </main>
+      </div>
 
-      <main className="main-panel">
-        <header className="topbar">
-          <button className="menu-button" type="button" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
-            ☰
-          </button>
-          <div className="topbar-status">
-            <span className={`status ${workspace.profile.syncStatus}`}>{syncStatusTone[workspace.profile.syncStatus]}</span>
-          </div>
-        </header>
-
-        {renderContent()}
-      </main>
-    </div>
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onGuestContinue={handleGuestContinue}
+        onAccountMigrate={user ? handleAccountMigration : undefined}
+      />
+    </>
   );
 }
 
