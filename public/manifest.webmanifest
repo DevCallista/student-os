@@ -1,0 +1,7 @@
+{
+  "name": "student-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Student OS — local-first student operating system with optional cloud sync",
+  "author": "DevCallista"
+}
