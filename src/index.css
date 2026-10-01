@@ -52,7 +52,7 @@ html, body, #root {
   margin: 0;
   min-height: 100%;
   height: 100%;
-  font-family: Inter, "Segoe UI", sans-serif;
+  font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -83,6 +83,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow-y: auto;
 }
 
 .brand-block {
@@ -110,6 +111,12 @@ button {
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   color: white;
   font-weight: 800;
+}
+
+.brand-mark.large {
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
 }
 
 .nav {
@@ -154,6 +161,7 @@ button {
 .main-panel {
   flex: 1;
   padding: 22px 20px 40px;
+  overflow-y: auto;
 }
 
 .topbar {
@@ -180,11 +188,18 @@ button {
 .status {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--panel-strong);
   font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.status.full {
+  width: 100%;
+  justify-content: center;
 }
 
 .status.local { color: var(--muted); }
@@ -245,12 +260,27 @@ button {
   width: 100%;
 }
 
+.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .ghost {
   background: var(--surface-soft);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 8px 12px;
+}
+
+.ghost.block {
+  width: 100%;
+  padding: 12px 18px;
+}
+
+.ghost:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .stats-grid {
@@ -352,6 +382,7 @@ button {
   color: var(--primary);
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
 
 .checkbox.large {
@@ -387,6 +418,7 @@ button {
   padding: 6px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .priority.high { background: rgba(239, 68, 68, 0.08); color: var(--danger); }
@@ -410,6 +442,10 @@ input, select {
 
 .composer {
   margin-bottom: 18px;
+}
+
+.composer h3 {
+  margin-top: 0;
 }
 
 .timeline-item {
@@ -555,6 +591,120 @@ input, select {
   border-bottom: none;
 }
 
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  max-width: 460px;
+  width: 100%;
+}
+
+.modal-content.welcome {
+  max-width: 380px;
+}
+
+.modal-body {
+  padding: 40px 30px;
+}
+
+.welcome-header {
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.welcome-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.welcome-header p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 32ch;
+}
+
+.modal-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.modal-actions.vertical {
+  grid-template-columns: 1fr;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 18px;
+}
+
+.account-panel {
+  margin-top: auto;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.account-header > div {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+}
+
+.account-header strong {
+  font-size: 0.95rem;
+}
+
+.account-header small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.sync-section {
+  margin: 16px 0;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
   .sidebar {
     position: fixed;
@@ -593,5 +743,9 @@ input, select {
 
   .card {
     padding: 16px;
+  }
+
+  .modal-body {
+    padding: 32px 24px;
   }
 }
