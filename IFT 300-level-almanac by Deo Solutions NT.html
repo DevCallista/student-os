@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>300L Almanac — Session Study Companion</title>
+<style>
+  :root{
+    --ink:#2b2620;
+    --ink-soft:#5a5142;
+    --paper:#f1ead9;
+    --paper-raised:#e8dfc9;
+    --hairline:#c9bd9f;
+    --amber:#a8702f;
+    --amber-deep:#7c4f1f;
+    --rain-blue:#2e5266;
+    --rain-deep:#16232b;
+    --rain-paper:#e6ecee;
+    --moss:#4c7a54;
+    --accent: var(--amber);
+    --accent-deep: var(--amber-deep);
+    --bg: var(--paper);
+    --bg-raised: var(--paper-raised);
+    --text: var(--ink);
+    --text-soft: var(--ink-soft);
+    --card-bg: #faf6ec;
+    --stamp: var(--amber);
+    font-size: 17px;
+  }
+  [data-theme="rain"]{
+    --accent: var(--rain-blue);
+    --accent-deep: var(--rain-deep);
+    --bg: var(--rain-paper);
+    --bg-raised: #d9e3e6;
+    --text: #1c2a30;
+    --text-soft: #47606a;
+    --card-bg: #f4f8f9;
+    --hairline: #b7c7cc;
+    --stamp: var(--rain-blue);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    transition: background .5s ease, color .5s ease;
+    min-height:100vh;
+    background-image:
+      radial-gradient(var(--hairline) 0.6px, transparent 0.6px);
+    background-size: 14px 14px;
+    background-attachment: fixed;
+  }
+  .sans{ font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  .mono{ font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+
+  /* ---------- Top bar ---------- */
+  #topbar{
+    display:none;
+    position:sticky; top:0; z-index:50;
+    background: var(--bg);
+    border-bottom: 1px solid var(--hairline);
+    padding: 14px 5vw;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    backdrop-filter: blur(2px);
+  }
+  #topbar.show{ display:flex; }
+  #topbar .brand{
+    font-weight:700; letter-spacing:.04em; font-size:1.05rem; color:var(--accent-deep);
+    cursor:pointer; white-space:nowrap;
+  }
+  #topbar nav{ display:flex; gap:6px; flex-wrap:wrap; }
+  #topbar button{
+    font-family:inherit; font-size:.82rem; letter-spacing:.03em;
+    padding:9px 14px; border-radius:3px; border:1px solid var(--hairline);
+    background:transparent; color:var(--text-soft); cursor:pointer;
+    text-transform:uppercase;
+  }
+  #topbar button.active{ background:var(--accent); color:#fdf9f0; border-color:var(--accent); }
+  #topbar button:hover:not(.active){ border-color:var(--accent); color:var(--accent-deep); }
+
+  .page{ display:none; max-width:920px; margin:0 auto; padding:48px 5vw 100px; animation: rise .5s ease; }
+  .page.active{ display:block; }
+  @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---------- Intro / Cover ---------- */
+  #page-intro{ max-width:760px; padding-top:9vh; }
+  .eyebrow{
+    font-family: inherit; text-transform:uppercase; letter-spacing:.18em; font-size:.72rem;
+    color:var(--accent-deep); margin-bottom:14px; display:block;
+  }
+  h1.title{
+    font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+    line-height:1.02; margin:0 0 6px; font-weight:400; letter-spacing:-.01em;
+  }
+  .title em{ font-style:italic; color:var(--accent-deep); }
+  .subtitle{ font-size:1.05rem; color:var(--text-soft); margin:0 0 40px; max-width:52ch; }
+
+  .exhort{ font-size:1.08rem; line-height:1.75; margin:0 0 22px; max-width:62ch; }
+  .exhort strong{ color:var(--accent-deep); font-weight:700; }
+
+  .disclaimer{
+    border-left:3px solid var(--accent);
+    background: var(--card-bg);
+    padding:16px 20px; margin:34px 0; font-size:.92rem; line-height:1.6; color:var(--text-soft);
+    font-family: inherit;
+  }
+  .disclaimer b{ color:var(--text); }
+
+  .whatsapp-note{
+    font-size:.88rem; color:var(--text-soft); font-style:italic; margin:0 0 44px;
+  }
+
+  .enter-grid{
+    display:grid; grid-template-columns:1fr; gap:14px; margin-top:10px;
+  }
+  @media(min-width:640px){ .enter-grid{ grid-template-columns: 1fr 1fr 1fr; } }
+
+  .enter-card{
+    display:block; text-align:left; cursor:pointer;
+    background:var(--card-bg); border:1px solid var(--hairline); border-radius:4px;
+    padding:22px 20px; font-family:inherit; color:var(--text);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .enter-card:hover{ transform:translateY(-3px); border-color:var(--accent); box-shadow:0 10px 24px -14px rgba(0,0,0,.35); }
+  .enter-card .num{ font-size:.72rem; letter-spacing:.15em; color:var(--accent-deep); text-transform:uppercase; display:block; margin-bottom:8px; }
+  .enter-card .name{ font-size:1.15rem; margin:0 0 6px; }
+  .enter-card .desc{ font-size:.85rem; color:var(--text-soft); font-family:inherit; line-height:1.5; margin:0; }
+
+  /* ---------- Semester pages ---------- */
+  .sem-head{ margin-bottom:34px; }
+  .sem-head h2{ font-size:2.1rem; font-weight:400; margin:0 0 8px; }
+  .sem-head p{ color:var(--text-soft); font-size:.98rem; max-width:60ch; margin:0; }
+  .sem-stats{ display:flex; gap:22px; margin-top:18px; flex-wrap:wrap; }
+  .sem-stat{ font-family:inherit; }
+  .sem-stat .n{ font-size:1.6rem; color:var(--accent-deep); display:block; line-height:1; }
+  .sem-stat .l{ font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-soft); }
+
+  .course{
+    position:relative;
+    background:var(--card-bg); border:1px solid var(--hairline); border-radius:4px;
+    padding:22px 22px 20px; margin-bottom:18px;
+    display:grid; grid-template-columns: 1fr; gap:16px;
+  }
+  @media(min-width:720px){ .course{ grid-template-columns: 1fr 200px; } }
+
+  .course .stamp{
+    position:absolute; top:16px; right:18px;
+    font-family:inherit; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--stamp); border:1px solid var(--stamp); border-radius:2px; padding:3px 8px;
+    transform: rotate(2deg); opacity:.85;
+  }
+  .course-head .code{ font-size:1.3rem; margin:0 0 2px; padding-right:80px; }
+  .course-head .name{ font-size:.98rem; color:var(--text-soft); margin:0 0 10px; font-style:italic; }
+  .meta-row{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
+  .meta-chip{
+    font-family:inherit; font-size:.74rem; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--text-soft); background:var(--bg-raised); padding:4px 9px; border-radius:2px;
+  }
+  .meta-chip.elective{ color:var(--accent-deep); font-weight:700; }
+  .course-note{ font-size:.85rem; color:var(--text-soft); font-style:italic; margin:0 0 12px; }
+
+  .links{ display:flex; flex-direction:column; gap:8px; }
+  .res-btn{
+    font-family:inherit; font-size:.85rem; text-align:left;
+    padding:10px 12px; border:1px solid var(--hairline); border-radius:3px;
+    background:transparent; color:var(--text); text-decoration:none; display:block;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .res-btn:hover{ background:var(--accent); color:#fdf9f0; border-color:var(--accent); }
+  .res-btn .tag{ display:block; font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; opacity:.7; margin-bottom:2px; }
+
+  /* ---------- Study plan page ---------- */
+  .plan-block{ margin-bottom:36px; }
+  .plan-block h3{ font-size:1.3rem; margin:0 0 6px; color:var(--accent-deep); font-weight:400; }
+  .plan-block .when{ font-size:.75rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-soft); margin-bottom:12px; display:block; }
+  .plan-block ul{ margin:0; padding-left:20px; line-height:1.75; }
+  .plan-block p{ line-height:1.75; }
+  .plan-divider{ border:none; border-top:1px solid var(--hairline); margin:36px 0; }
+  .two-col{ display:grid; grid-template-columns:1fr; gap:28px; }
+  @media(min-width:700px){ .two-col{ grid-template-columns:1fr 1fr; } }
+
+  footer.note{
+    text-align:center; font-size:.8rem; color:var(--text-soft); padding:40px 5vw 60px;
+  }
+</style>
+</head>
+<body data-theme="harmattan">
+
+<div id="topbar">
+  <div class="brand sans" onclick="showPage('intro')">300L ALMANAC</div>
+  <nav class="sans">
+    <button id="nav-harmattan" onclick="showPage('harmattan')">Harmattan</button>
+    <button id="nav-rain" onclick="showPage('rain')">Rain</button>
+    <button id="nav-plan" onclick="showPage('plan')">Study Plan</button>
+  </nav>
+</div>
+
+<!-- ================= INTRO ================= -->
+<section class="page active" id="page-intro">
+  <span class="eyebrow sans">IFT · Think IT</span>
+  <h1 class="title">The 300 Level<br><em>Almanac</em></h1>
+  <p class="subtitle sans">A study companion for the coming session — Harmattan and Rain semesters, side by side, with free resources for every course.</p>
+
+  <p class="exhort">Two semesters, seventeen courses, one SIWES placement running quietly underneath both. It's a full year — the kind that either builds your foundation for everything after it, or gets survived one deadline at a time. <strong>Aim for the first one.</strong> None of these courses is out of reach on its own; the difficulty is mostly volume and pacing, and both of those respond well to a plan you actually follow.</p>
+
+  <p class="exhort">This isn't a replacement for your lecturers, your department's course outline, or the handouts you'll be given in class — think of it as the layer underneath: something to turn to when a lecture moves faster than your notes, or when you want a second explanation of something before a test. Use it alongside your coursework, not instead of it.</p>
+
+  <div class="disclaimer sans">
+    <b>A note on the resources below:</b> these are free, publicly available e-books, docs, and video courses matched to each course's outline — not official course materials, and not guaranteed to match your lecturer's exact syllabus, emphasis, or assessment style. Cross-check anything high-stakes against your own department's outline before relying on it for an exam.
+  </div>
+
+  <p class="whatsapp-note sans">When official PDFs and course materials become available for any of these courses, the Google Drive link will be shared in the WhatsApp group — this page covers the gap until then.</p>
+
+  <div class="enter-grid">
+    <div class="enter-card" onclick="showPage('harmattan')">
+      <span class="num sans">01 — First Semester</span>
+      <p class="name">Harmattan Semester Resources</p>
+      <p class="desc sans">8 courses — SIWES II, networking, data analysis, DSA, database programming, and two electives.</p>
+    </div>
+    <div class="enter-card" onclick="showPage('rain')">
+      <span class="num sans">02 — Second Semester</span>
+      <p class="name">Rain Semester Resources</p>
+      <p class="desc sans">9 courses — web & mobile development, OS, ethics, entrepreneurship, and GST.</p>
+    </div>
+    <div class="enter-card" onclick="showPage('plan')">
+      <span class="num sans">03 — Strategy</span>
+      <p class="name">A Reasonable Study Plan</p>
+      <p class="desc sans">An actionable weekly and semester rhythm most students can realistically stick to.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HARMATTAN ================= -->
+<section class="page" id="page-harmattan">
+  <div class="sem-head">
+    <span class="eyebrow sans">First Semester</span>
+    <h2>Harmattan Semester</h2>
+    <p class="sans">Eight courses, weighted toward the technical core — data, databases, networks, and your SIWES placement running in parallel.</p>
+    <div class="sem-stats sans">
+      <div class="sem-stat"><span class="n">8</span><span class="l">Courses</span></div>
+      <div class="sem-stat"><span class="n">2</span><span class="l">Electives</span></div>
+      <div class="sem-stat"><span class="n">19</span><span class="l">Total Units</span></div>
+    </div>
+  </div>
+  <div id="harmattan-list"></div>
+</section>
+
+<!-- ================= RAIN ================= -->
+<section class="page" id="page-rain">
+  <div class="sem-head">
+    <span class="eyebrow sans">Second Semester</span>
+    <h2>Rain Semester</h2>
+    <p class="sans">Nine courses — the most application-heavy stretch of the year: web, mobile, OS internals, plus GST and entrepreneurship.</p>
+    <div class="sem-stats sans">
+      <div class="sem-stat"><span class="n">9</span><span class="l">Courses</span></div>
+      <div class="sem-stat"><span class="n">0</span><span class="l">Electives</span></div>
+      <div class="sem-stat"><span class="n">20</span><span class="l">Total Units</span></div>
+    </div>
+  </div>
+  <div id="rain-list"></div>
+</section>
+
+<!-- ================= STUDY PLAN ================= -->
+<section class="page" id="page-plan">
+  <div class="sem-head">
+    <span class="eyebrow sans">Strategy</span>
+    <h2>A Reasonable Study Plan</h2>
+    <p class="sans">Nothing exotic — a rhythm built to survive a full course load without heroics in exam week. Adjust the specifics, keep the shape.</p>
+  </div>
+
+  <div class="plan-block">
+    <span class="when sans">Every Week, All Year</span>
+    <h3>The weekly rhythm</h3>
+    <p>The single highest-leverage habit for a course load like this is a fixed weekly review slot per course — not more study time overall, just time that isn't allowed to slip. A workable split across a normal week:</p>
+    <ul>
+      <li><b>Same-day pass (20–30 min):</b> the evening of each lecture, skim your notes once and jot down anything that didn't make sense. This is what actually prevents backlog — it's far cheaper than re-learning a topic from scratch a month later.</li>
+      <li><b>Two deep-work blocks (60–90 min):</b> pick two courses a day, on rotation, so every course gets a real block roughly twice a week. Practical courses (web dev, mobile, database programming, OOP) get their block spent coding, not reading.</li>
+      <li><b>One weekend consolidation block (2–3 hrs):</b> review the whole week across all courses, redo anything you flagged, and skim ahead at what's coming next week.</li>
+    </ul>
+  </div>
+
+  <hr class="plan-divider">
+
+  <div class="two-col">
+    <div class="plan-block">
+      <span class="when sans">Weeks 1–3 of a Semester</span>
+      <h3>Establish, don't sprint</h3>
+      <ul>
+        <li>Read each course outline against the resource list once, and pick <i>one</i> primary free resource per course rather than several competing ones — switching resources mid-topic wastes more time than it saves.</li>
+        <li>For SIWES II: start your logbook habit from week one. A logbook filled in weekly from day one takes an evening to finish at the end; one reconstructed from memory in month three takes a weekend and is worse.</li>
+        <li>Front-load the heaviest theory courses (Data Structures & Algorithms, Data Analysis, Operating Systems) — they compound, so a shaky foundation here costs you later in the semester more than a shaky foundation in, say, GST.</li>
+      </ul>
+    </div>
+    <div class="plan-block">
+      <span class="when sans">Middle Weeks</span>
+      <h3>Build the practical courses in public</h3>
+      <ul>
+        <li>Courses with a PH (practical hours) component — web dev, mobile dev, CMS, database programming, networking — are best learned by building one small real thing, not by finishing a video course passively. Pick a toy project per course and let the free resource guide you through building it.</li>
+        <li>Bring what you build to Forge Labs sessions or study partners; explaining a half-finished project surfaces gaps faster than solo review does.</li>
+        <li>Keep the same-day pass habit running — this is where it's most tempting to drop, and most costly to drop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="plan-divider">
+
+  <div class="two-col">
+    <div class="plan-block">
+      <span class="when sans">2–3 Weeks Before Exams</span>
+      <h3>Shift from learning to retrieval</h3>
+      <ul>
+        <li>Stop consuming new material in theory-heavy courses and switch to past questions, practice problems, and self-testing — recognizing an answer and producing one under exam conditions are different skills, and only the second one is tested.</li>
+        <li>Group courses by how they're actually examined: courses with heavy calculation (Data Analysis) need timed practice sets; concept-and-definition courses (MIS, Ethics & Legal Issues, GST) respond better to writing short answers from memory and checking them.</li>
+        <li>Revisit your own flagged-confusion notes from the "same-day pass" habit — that list is your highest-yield revision material, because it's already filtered down to what you personally found hard.</li>
+      </ul>
+    </div>
+    <div class="plan-block">
+      <span class="when sans">Exam Week</span>
+      <h3>Protect sleep over cramming hours</h3>
+      <p>By exam week, the return on an extra hour of review is small next to the cost of a bad night's sleep before a paper. Keep review sessions short and targeted — your own flagged notes and one past-question set per course — and treat rest as part of the preparation, not time stolen from it.</p>
+    </div>
+  </div>
+
+  <hr class="plan-divider">
+
+  <div class="plan-block">
+    <span class="when sans">Balancing the Two Semesters</span>
+    <h3>Core vs. elective, Harmattan vs. Rain</h3>
+    <p>In Harmattan, your two electives (Data Compression & Web-Based Multimedia, Management Information Systems) are lower-unit and more reading-based than the core courses around them — it's reasonable to give them a lighter, later-scheduled slot in your week rather than equal time to something like Data Structures & Algorithms. In Rain, there are no electives, but the load is more evenly practical — treat GST 312 and IFT 308 (Ethics & Legal Issues) as the "read and retain" courses you can review in shorter, more frequent bursts, freeing your longer blocks for the build-heavy courses like Web Application Development, Mobile Application Development, and Operating Systems.</p>
+  </div>
+</section>
+
+<footer class="note sans">Prepared by Deo Solutions NT · 300 Level Almanac — a self-study companion, not an official course document. Cross-check against your department's outline.</footer>
+
+<script>
+const RESOURCES = {
+  harmattan: [
+    {
+      code: "IFT 399", name: "SIWES II", units: "3 Units", hours: "PH 135", type: "core",
+      note: "No fixed external syllabus — this is your industrial training placement.",
+      links: [
+        { label: "Ask your SIWES coordinator for the current logbook / report template", tag: "Department", url: "https://www.google.com/search?q=SIWES+logbook+template+Nigerian+university" }
+      ]
+    },
+    {
+      code: "ICT 305", name: "Data Communications Systems and Network", units: "3 Units", hours: "LH 30 · PH 45", type: "core",
+      links: [
+        { label: "Cisco Networking Academy — Networking Basics (free, self-paced)", tag: "Course", url: "https://www.netacad.com/courses/networking-basics" },
+        { label: "GeeksforGeeks — Computer Networks Tutorial", tag: "Reference", url: "https://www.geeksforgeeks.org/computer-network-tutorials/" },
+        { label: "NPTEL — Data Communication (full lecture series)", tag: "Video", url: "https://www.youtube.com/results?search_query=NPTEL+data+communication+full+course" }
+      ]
+    },
+    {
+      code: "UIL-IFT 301", name: "Data Analysis", units: "2 Units", hours: "L 30", type: "core",
+      links: [
+        { label: "Khan Academy — Statistics and Probability", tag: "Course", url: "https://www.khanacademy.org/math/statistics-probability" },
+        { label: "StatQuest (YouTube) — regression, trees, distributions explained simply", tag: "Video", url: "https://www.youtube.com/@statquest" },
+        { label: "An Introduction to Statistical Learning — free textbook PDF", tag: "E-book", url: "https://www.statlearning.com/" }
+      ]
+    },
+    {
+      code: "UIL-IFT 303", name: "Data Structure and Algorithm", units: "2 Units", hours: "L 15 · P 45", type: "core",
+      links: [
+        { label: "freeCodeCamp — Data Structures & Algorithms in Python (full course)", tag: "Video", url: "https://www.freecodecamp.org/learn/" },
+        { label: "GeeksforGeeks — Data Structures tutorial", tag: "Reference", url: "https://www.geeksforgeeks.org/data-structures/" },
+        { label: "MIT OpenCourseWare 6.006 — Introduction to Algorithms", tag: "Course", url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/" }
+      ]
+    },
+    {
+      code: "UIL-IFT 305", name: "Data Compression and Web Based Multimedia", units: "2 Units", hours: "L 15 · P 45", type: "elective",
+      links: [
+        { label: "GeeksforGeeks — Huffman Coding, RLE, LZW", tag: "Reference", url: "https://www.geeksforgeeks.org/huffman-coding-greedy-algo-3/" },
+        { label: "NPTEL — Data Compression full course (search)", tag: "Video", url: "https://www.youtube.com/results?search_query=NPTEL+data+compression+course" },
+        { label: "web.dev by Google — image & video compression for the web", tag: "Reference", url: "https://web.dev/learn/images" }
+      ]
+    },
+    {
+      code: "UIL-IFT 307", name: "Management Information Systems", units: "2 Units", hours: "L 30", type: "elective",
+      links: [
+        { label: "Coursera — Management Information Systems (audit free)", tag: "Course", url: "https://www.coursera.org/courses?query=management%20information%20systems" },
+        { label: "MIS full-course lecture playlists (search)", tag: "Video", url: "https://www.youtube.com/results?search_query=management+information+systems+full+course" }
+      ]
+    },
+    {
+      code: "UIL-IFT 309", name: "Database Programming", units: "2 Units", hours: "L 15 · P 45", type: "core",
+      note: "Oracle-specific — LiveSQL and Dev Gym are official and free.",
+      links: [
+        { label: "Oracle LiveSQL — free, browser-based practice environment", tag: "Tool", url: "https://livesql.oracle.com/" },
+        { label: "Oracle Dev Gym — Databases for Developers: Foundations", tag: "Course", url: "https://devgym.oracle.com/pls/apex/dg/class/databases-for-developers-foundations.html" },
+        { label: "Oracle Tutorial — PL/SQL Tutorial (written, free)", tag: "Reference", url: "https://www.oracletutorial.com/plsql-tutorial/" }
+      ]
+    },
+    {
+      code: "UIL-IFT 311", name: "Object-Oriented Programming in IT", units: "2 Units", hours: "L 15 · P 45", type: "core",
+      links: [
+        { label: "Corey Schafer — OOP in Python (YouTube series)", tag: "Video", url: "https://www.youtube.com/results?search_query=corey+schafer+python+oop" },
+        { label: "Python official docs — Classes tutorial", tag: "Reference", url: "https://docs.python.org/3/tutorial/classes.html" },
+        { label: "Oracle Java Tutorials — Classes and Objects", tag: "Reference", url: "https://docs.oracle.com/javase/tutorial/java/javaOO/index.html" }
+      ]
+    }
+  ],
+  rain: [
+    {
+      code: "GST 312", name: "Peace and Conflict Resolution", units: "2 Units", hours: "LH 30", type: "core",
+      note: "No fixed international syllabus match — best covered by Nigerian university lecture material.",
+      links: [
+        { label: "Search: NOUN GST Peace and Conflict Studies course guide", tag: "Course guide", url: "https://www.google.com/search?q=NOUN+GST+peace+and+conflict+resolution+course+guide+pdf" },
+        { label: "Search: Peace and Conflict Resolution Nigeria full lecture", tag: "Video", url: "https://www.youtube.com/results?search_query=peace+and+conflict+resolution+Nigeria+lecture" }
+      ]
+    },
+    {
+      code: "ENT 312", name: "Venture Creation", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "Y Combinator — Startup School (free)", tag: "Course", url: "https://www.startupschool.org/" },
+        { label: "U.S. SBA Learning Center — business plans & financing", tag: "Reference", url: "https://www.sba.gov/business-guide" }
+      ]
+    },
+    {
+      code: "IFT 302", name: "Web Application Development", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "MDN Web Docs — web fundamentals reference", tag: "Reference", url: "https://developer.mozilla.org/en-US/" },
+        { label: "freeCodeCamp — full curriculum (HTML/JS/back-end)", tag: "Course", url: "https://www.freecodecamp.org/learn/" },
+        { label: "PHP: The Right Way", tag: "Reference", url: "https://phptherightway.com/" }
+      ]
+    },
+    {
+      code: "IFT 304", name: "Web Development using Content Management Systems", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "Joomla official documentation", tag: "Reference", url: "https://docs.joomla.org/" },
+        { label: "Microsoft Learn — SharePoint fundamentals", tag: "Course", url: "https://learn.microsoft.com/en-us/training/" },
+        { label: "Search: Joomla full tutorial for beginners", tag: "Video", url: "https://www.youtube.com/results?search_query=joomla+full+tutorial+for+beginners" }
+      ]
+    },
+    {
+      code: "IFT 308", name: "Ethics and Legal Issues in IT", units: "2 Units", hours: "LH 30", type: "core",
+      links: [
+        { label: "EFF.org — digital rights, privacy, IP law", tag: "Reference", url: "https://www.eff.org/issues" },
+        { label: "Search: Computer Ethics full course lecture playlist", tag: "Video", url: "https://www.youtube.com/results?search_query=computer+ethics+full+course" }
+      ]
+    },
+    {
+      code: "IFT 310", name: "Mobile Application Development", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "Android Developers — official free training", tag: "Course", url: "https://developer.android.com/courses" },
+        { label: "Google Codelabs — guided Android exercises", tag: "Practice", url: "https://codelabs.developers.google.com/" },
+        { label: "Flutter.dev — official docs & codelabs", tag: "Reference", url: "https://docs.flutter.dev/" }
+      ]
+    },
+    {
+      code: "IFT 322", name: "IT Innovation and Entrepreneurship", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "MIT OCW — New Enterprises (15.390)", tag: "Course", url: "https://ocw.mit.edu/courses/15-390-new-enterprises-spring-2013/" },
+        { label: "Y Combinator — Startup School (free)", tag: "Course", url: "https://www.startupschool.org/" }
+      ]
+    },
+    {
+      code: "IFT 342", name: "Network Servers and Infrastructures", units: "2 Units", hours: "LH 15 · PH 45", type: "core",
+      links: [
+        { label: "Cisco Networking Academy — self-paced free courses", tag: "Course", url: "https://www.netacad.com/catalogs/learn" },
+        { label: "Professor Messer — networking video library", tag: "Video", url: "https://www.professormesser.com/" },
+        { label: "DigitalOcean Community Tutorials — DHCP/DNS/VPN setup", tag: "Reference", url: "https://www.digitalocean.com/community/tutorials" }
+      ]
+    },
+    {
+      code: "CSC 308", name: "Operating Systems", units: "3 Units", hours: "LH 30 · PH 45", type: "core",
+      links: [
+        { label: "OSTEP — Operating Systems: Three Easy Pieces (free full textbook)", tag: "E-book", url: "https://pages.cs.wisc.edu/~remzi/OSTEP/" },
+        { label: "Neso Academy — Operating Systems (YouTube)", tag: "Video", url: "https://www.youtube.com/results?search_query=neso+academy+operating+systems" },
+        { label: "Linux Journey — interactive Linux/UNIX basics", tag: "Practice", url: "https://linuxjourney.com/" }
+      ]
+    }
+  ]
+};
+
+function renderList(containerId, courses){
+  const el = document.getElementById(containerId);
+  el.innerHTML = courses.map(c => `
+    <div class="course">
+      <span class="stamp mono">${c.type === 'elective' ? 'Elective' : 'Core'}</span>
+      <div class="course-head">
+        <div class="meta-row">
+          <span class="meta-chip mono">${c.units}</span>
+          <span class="meta-chip mono">${c.hours}</span>
+          ${c.type === 'elective' ? '<span class="meta-chip elective">Elective</span>' : ''}
+        </div>
+        <h3 class="code">${c.code}</h3>
+        <p class="name">${c.name}</p>
+        ${c.note ? `<p class="course-note">${c.note}</p>` : ''}
+      </div>
+      <div class="links">
+        ${c.links.map(l => `<a class="res-btn" href="${l.url}" target="_blank" rel="noopener"><span class="tag">${l.tag}</span>${l.label}</a>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+renderList('harmattan-list', RESOURCES.harmattan);
+renderList('rain-list', RESOURCES.rain);
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+
+  const topbar = document.getElementById('topbar');
+  if(name === 'intro'){
+    topbar.classList.remove('show');
+  } else {
+    topbar.classList.add('show');
+  }
+
+  document.querySelectorAll('#topbar nav button').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-' + name);
+  if(navBtn) navBtn.classList.add('active');
+
+  document.body.setAttribute('data-theme', name === 'rain' ? 'rain' : 'harmattan');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
